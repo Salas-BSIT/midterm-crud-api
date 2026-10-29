@@ -1,55 +1,19 @@
-1. Most Challenging Part
-Async Error Handling: Managing async/await flows and returning structured JSON error responses without crashing the app.
+1. What was the most challenging part of building this API?
+Lenghty lines in which i had to know which are is which especially debugging
 
-Input Validation: Safely parsing URL route parameters and validating unique constraints like email uniqueness during updates.
-2. TypeORM vs. Raw SQL
-TypeScript Entities: Maps database tables directly to classes, avoiding manual SQL string queries.
+2. How does TypeORM make database operations easier compared to raw SQL?
+TypeORM is an Object-Relational Mapper (ORM) designed for TypeScript and JavaScript that acts as a bridge between your application code and your relational database.
 
-Type Safety & Auto-complete: Reduces runtime errors with strong typing for queries and relations.
-3. Hiding Passwords & ImplementationWhy: Protects sensitive user credentials from leaking in API responses or logs.Implementation:Added { select: false } to the password entity column.   Used destructuring in the controller to omit password from the JSON response object (const { password: _, ...userWithoutPassword } = savedUser).   
-4. When to Use Transactions
-Scenario: E-commerce checkout (creating an order, deducting inventory, charging balance).
+3. Why is it important to exclude the password field from API responses? How did you implement this?
+Excluding the password field even if it is hashed and salted from API responses is a fundamental security best practice for several reasons:
 
-Why: Ensures all operations succeed together or fail/rollback entirely, preventing corrupted data.
-5. synchronize: true vs. Migrationssynchronize: true: Automatically updates database schema on app start. Use only in development.   Migrations: Version-controlled SQL scripts for manual schema changes. Use in production to prevent accidental data loss.
-6. Adding a Product Entity (One-to-Many)Product Entity: Add @ManyToOne(() => User, (user) => user.products).User Entity: Add @OneToMany(() => Product, (product) => product.user) products!: Product[];.Config: Register Product inside the entities array in data-source.ts.   
-7. Security Improvements for Production
-Password Hashing: Hash passwords using bcrypt or argon2.
+4. Describe a scenario where you would need to use database transactions instead of individual operations.
+You would use database transactions during an e-commerce checkout process—such as simultaneously deducting inventory, creating an order, and charging a user's wallet—to ensure that a failure in any single step automatically rolls back all changes, preventing severe data inconsistency.
+ 
+5. What is the difference between `synchronize: true` and migrations? When should you use each?
+synchronize: true automatically updates the database schema from your entity code on every app startup—making it suitable only for local prototyping due to the high risk of data loss—whereas migrations use explicit, version-controlled scripts to safely and predictably manage schema changes in production and team environments.
 
-Authentication: Protect endpoints using JWT or session tokens.
+6. If you had to add a `Product` entity with a relationship to `User` (a user can have many products), how would you modify the code?
+You would add a Product entity containing a @ManyToOne relation decorator pointing to the User, and update the User entity to include a corresponding @OneToMany relation decorator mapping back to its products.
 
-Rate Limiting & Validation: Use express-rate-limit to prevent brute-force attacks and validate input with class-validator.
-
-Environment: Set NODE_ENV=production, turn off synchronize, and restrict CORS origins.
-
-
-
-7.1
-1. Most Challenging Part
-Async Error Handling: Managing asynchronous promise flows and returning consistent, structured JSON error responses without crashing the app.
-
-Input Validation: Safely parsing URL route parameters and enforcing constraints (like email uniqueness) across create and update endpoints.
-2. TypeORM vs. Raw SQLTypeScript Entities: Maps database tables directly to classes and uses repository methods (find, save) instead of manual SQL strings.   Type Safety: Provides strong typing across queries and entities, preventing runtime typos in table or column names.
-3. Excluding Passwords & ImplementationWhy: Prevents sensitive user credentials from leaking in API responses, network logs, or client-side storage.Implementation: Set { select: false } on the entity password column and used object destructuring in controllers to strip password before returning responses (const { password: _, ...userWithoutPassword } = savedUser).   
-4. Database Transactions
-Scenario: E-commerce checkout (creating an order, deducting stock, debiting account balance).
-
-Why: Guarantees atomicity—if one step fails, all previous operations roll back, preventing corrupted or inconsistent data.
-5. synchronize: true vs. Migrationssynchronize: true: Automatically updates database schema on app startup. Use only in development.   Migrations: Version-controlled SQL scripts for manual, controlled schema updates. Use in production to prevent accidental data loss.
-6. Adding a Comment Entity (One-to-Many)
-Comment Entity: Define fields and add @ManyToOne(() => Task, (task) => task.comments).
-
-Task Entity: Add @OneToMany(() => Comment, (comment) => comment.task) comments!: Comment[];
-7. Security Improvements for Production
-Password Hashing: Hash passwords using bcrypt or argon2 before saving.
-
-Auth & Rate Limiting: Protect endpoints with JWT/cookies and use express-rate-limit against brute-force attacks.
-
-Environment: Set NODE_ENV=production, turn off synchronize, restrict CORS, and use helmet.
-8. The ! (Definite Assignment Operator)Satisfies TypeScript's strictPropertyInitialization rule by telling the compiler the property will be assigned at runtime by TypeORM rather than in a constructor.   
-9. Explicit Column Types (type: 'varchar')
-Ensures cross-database compatibility and enforces database-level integrity (such as exact column types and max character lengths).
-10. TypeORM Relationships vs. Raw SQL Foreign Keys
-Difference: TypeORM abstracts foreign keys and SQL JOIN clauses into object-oriented decorators (@ManyToOne, @OneToMany) and TypeScript properties.
-
-Advantages: Simplifies nested entity loading (relations: ['comments']), provides compile-time type safety, and eliminates manual SQL JOIN queries.
+7. What security improvements would you make before deploying this API to production? (Hint: password hashing, rate limiting, authentication, etc.)
